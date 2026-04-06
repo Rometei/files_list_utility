@@ -3,6 +3,7 @@ from pathlib import Path
 import zlib
 import os
 import json
+import shlex
 
 
 class FileCreator:
@@ -10,14 +11,13 @@ class FileCreator:
     def __init__(self, default_output_path=None):
         self.files = {}
         self.output_path = default_output_path
-        self.running = True
     
     def show_help(self):
         print("""
 Доступные команды:
-/add <путь_к_файлу>                 - добавить один файл
-/adddir <путь_к_директории> [-r]    - добавить директорию рекурсивно или нерекурсивно
-/remove <путь_к_файлу>              - удалить один файл
+/add <"путь_к_файлу">               - добавить один файл(если путь к файлу содержит пробелы, путь заключайте в кавычки)
+/adddir <путь_к_директории> [-r]    - добавить директорию рекурсивно или нерекурсивно(путь с пробелами - в кавычки, флаг -r для рекурсии)
+/remove <путь_к_файлу>              - удалить один файл(путь с пробелами - в кавычки)
 /setpath [путь_к_списку]            - задать путь для сохранения списка             
 /save                               - сохранить список
 /help                               - вывести список доступных команд
@@ -26,8 +26,10 @@ class FileCreator:
     
     @staticmethod
     def calculate_crc32(file_path):
+        if not file_path.exists():
+            raise FileNotFoundError(f"Путь не существует: {file_path}")
         if not file_path.is_file():
-            raise FileNotFoundError(f"Файл не найден: {file_path}")
+            raise IsADirectoryError(f"Получена директория, а не файл: {file_path}")
         crc = 0
         with open(file_path, 'rb') as f:
             while True:
@@ -109,8 +111,7 @@ class FileCreator:
         
         save_path = self.output_path
         if save_path is None:
-            directory = Path(__file__).parent.resolve()
-            save_path = directory / "file_list.json"
+            save_path = Path.cwd() / "file_list.json"
         else:
             save_path = save_path.resolve()
 
@@ -133,7 +134,12 @@ class FileCreator:
             print("Неизвестная команда.")
             return
         
-        parts = line.split()
+        try:
+            parts = shlex.split(line)
+        except ValueError as e:
+            print(f"Ошибка в синтаксисе команды(возможно незакрытые кавычки): {e}")
+            return
+        #parts = line.split()
         cmd = parts[0].lower()
         args = parts[1:]
 
@@ -155,13 +161,14 @@ class FileCreator:
             else:
                 self.remove_files(args[0])
         elif cmd == '/setpath':
-            self.set_output_path(args[0])
+            self.set_output_path(args[0] if args else None)
         elif cmd == '/save':
             self.save()
         else:
             print('Неизвестная команда')
     
     def run(self):
+        self.running = True
         print("Введите /help.")
         while self.running:
             try:

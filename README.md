@@ -9,14 +9,14 @@
 
 ## Установка и запуск
 
-1. **Склонируйте репозиторий** (или скачайте файл `file_creator.py`):
+1. **Склонируйте репозиторий** (или скачайте файл `main.py`):
    ```bash
    git clone https://github.com/Rometei/files_list_utility.git
    cd files_list_utility
 2. Запустите утилиту
    ```bash
-   python file_creator.py
+   python main.py
 4. Укажите путь для сохранения по умолчанию (опционально):
    ```bash
-   python file_creator.py --output /путь/к/списку.json
+   python main.py --output /путь/к/списку.json
 6. После запуска появится приглашение >. Вводите команды (все команды начинаются со слеша /).
