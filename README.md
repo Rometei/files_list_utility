@@ -12,7 +12,7 @@
 1. **Склонируйте репозиторий** (или скачайте файл `file_creator.py`):
    ```bash
    git clone https://github.com/Rometei/files_list_utility.git
-   cd название-репозитория
+   cd files_list_utility
 2. Запустите утилиту
    ```bash
    python file_creator.py
